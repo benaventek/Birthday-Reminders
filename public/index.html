@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Birthday Reminder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .add-birthday-button {
+            margin-left: 10px;
+        }
+
+        .add-birthday-button button {
+            font-size: 18px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .add-birthday-button button:hover {
+            background-color: #3e8e41;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        li {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+            background-color: #1e1e1e;
+            text-align: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background-color: #2e2e2e;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 15px;
+            margin: 5px 0;
+        }
+
+        .button:hover {
+            background-color: #3e8e41
+        }
+
+        .button:active {
+            background-color: #3e8e41;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f
+        }
+
+        .delete-email-button {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #f44336;
+            border: none;
+            border-radius: 15px;
+        }
+
+        .delete-email-button:hover {
+            background-color: #d32f2f
+        }
+
+        .delete-email-button:active {
+            background-color: #d32f2f;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="email"] {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: calc(100% - 22px);
+            box-sizing: border-box;
+            background-color: #3a3a3a;
+            color: #ffffff;
+        }
+
+        input[type="text"]::placeholder,
+        input[type="email"]::placeholder {
+            color: #cccccc;
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-container button {
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .add-birthday-button button {
+                font-size: 16px;
+                width: 35px;
+                height: 35px;
+            }
+
+            ul li {
+                width: 90%;
+                margin: 5px auto;
+            }
+
+            .modal-content {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .button,
+            .delete-email-button {
+                font-size: 12px;
+                padding: 8px;
+            }
+
+            input[type="text"],
+            input[type="date"],
+            input[type="email"] {
+                width: calc(100% - 22px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>
+        Birthday Reminder
+        <span class="add-birthday-button">
+            <button id="openAddBirthdayModal">+</button>
+        </span>
+    </h1>
+
+    <ul id="birthdayList"></ul>
+
+    <div id="addBirthdayModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeAddBirthdayModal">&times;</span>
+            <form id="birthdayForm" class="form-container">
+                <input type="text" id="name" placeholder="Name" required>
+                <input type="date" id="birthday" required>
+                <input type="email" id="notificationEmail" placeholder="Notification Email" required>
+                <button type="submit" class="button">Add Birthday</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="birthdayModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeBirthdayModal">&times;</span>
+            <h2 id="modalName"></h2>
+            <p id="modalDate"></p>
+            <h3>Notification Emails</h3>
+            <ul id="modalEmails"></ul>
+            <input type="email" id="additionalEmail" placeholder="Additional Notification Email">
+            <button id="addEmailButton" class="button">Add Email</button>
+            <div style="margin-top: 10px;">
+                <button id="deleteBirthdayButton" class="button delete-button">Delete Birthday</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const addBirthdayModal = document.getElementById('addBirthdayModal');
+        const openAddBirthdayModalButton = document.getElementById('openAddBirthdayModal');
+        const closeAddBirthdayModalButton = document.getElementById('closeAddBirthdayModal');
+
+        openAddBirthdayModalButton.onclick = function () {
+            addBirthdayModal.style.display = 'block';
+        }
+
+        closeAddBirthdayModalButton.onclick = function () {
+            addBirthdayModal.style.display = 'none';
+        }
+
+        const birthdayModal = document.getElementById('birthdayModal');
+        const closeBirthdayModalButton = document.getElementById('closeBirthdayModal');
+
+        closeBirthdayModalButton.onclick = function () {
+            birthdayModal.style.display = 'none';
+        }
+
+        window.onclick = function (event) {
+            if (event.target == addBirthdayModal) {
+                addBirthdayModal.style.display = 'none';
+            }
+            if (event.target == birthdayModal) {
+                birthdayModal.style.display = 'none';
+            }
+        }
+
+        document.getElementById('birthdayForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const birthday = document.getElementById('birthday').value;
+            const notificationEmail = document.getElementById('notificationEmail').value;
+
+            await fetch('/addBirthday', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, birthday, notificationEmails: [notificationEmail] })
+            });
+
+            addBirthdayModal.style.display = 'none';
+            loadBirthdays();
+        });
+
+        document.getElementById('addEmailButton').addEventListener('click', async () => {
+            const name = document.getElementById('modalName').innerText;
+            const additionalEmail = document.getElementById('additionalEmail').value;
+
+            const response = await fetch('/getBirthdays');
+            const birthdays = await response.json();
+            const birthday = birthdays.find(b => b.name === name);
+            if (birthday.notificationEmails.includes(additionalEmail)) {
+                alert('This email is already added to the notification list.');
+                return;
+            }
+
+            await fetch('/addEmailToBirthday', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, additionalEmail })
+            });
+
+            loadBirthdays();
+            loadBirthdayDetails(name);
+        });
+
+        document.getElementById('deleteBirthdayButton').addEventListener('click', async () => {
+            const name = document.getElementById('modalName').innerText;
+
+            await fetch('/deleteBirthday', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name })
+            });
+
+            loadBirthdays();
+            birthdayModal.style.display = 'none';
+        });
+
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthName = months[parseInt(month, 10) - 1];
+            return `${monthName} ${parseInt(day, 10)}, ${year}`;
+        }
+
+
+        async function loadBirthdays() {
+            const response = await fetch('/getBirthdays');
+            const birthdays = await response.json();
+            const birthdayList = document.getElementById('birthdayList');
+            birthdayList.innerHTML = '';
+
+            birthdays.forEach(birthday => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${birthday.name} - ${formatDate(birthday.birthday)}`;
+                listItem.addEventListener('click', () => {
+                    document.getElementById('modalName').innerText = birthday.name;
+                    document.getElementById('modalDate').innerText = `Date: ${formatDate(birthday.birthday)}`;
+                    loadBirthdayDetails(birthday.name);
+                    birthdayModal.style.display = 'block';
+                });
+                birthdayList.appendChild(listItem);
+            });
+        }
+
+        async function loadBirthdayDetails(name) {
+            const response = await fetch('/getBirthdays');
+            const birthdays = await response.json();
+            const birthday = birthdays.find(b => b.name === name);
+            const modalEmails = document.getElementById('modalEmails');
+            modalEmails.innerHTML = '';
+            birthday.notificationEmails.forEach(email => {
+                const emailItem = document.createElement('li');
+                emailItem.textContent = email;
+                emailItem.appendChild(createDeleteEmailButton(name, email));
+                modalEmails.appendChild(emailItem);
+            });
+        }
+
+        function createDeleteEmailButton(name, email) {
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.classList.add('delete-email-button');
+            deleteButton.onclick = async () => {
+                await fetch('/deleteEmailFromBirthday', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email })
+                });
+
+                loadBirthdayDetails(name);
+            };
+            return deleteButton;
+        }
+
+        loadBirthdays();
+    </script>
+</body>
+
+</html>
